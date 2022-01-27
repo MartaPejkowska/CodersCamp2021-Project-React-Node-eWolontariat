@@ -1,8 +1,8 @@
 import './App.css';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
-import MainProfile from './MainProfile';
-import AllVolunteers from './AllVolunteers';
-import AllTasks from './AllTasks';
+import MainProfile from './pages/MainProfile';
+import AllVolunteers from './pages/AllVolunteers';
+import AllTasks from './pages/AllTasks';
 
 const theme = createTheme({
   palette: {
@@ -21,19 +21,20 @@ const theme = createTheme({
   typography:{
     fontFamily: "'Quicksand', sans-serif", 
     h4: {
-      fontSize: 36,
+      fontSize: '2rem',
       fontWeight: 700,
-      lineHeight: 2
+      lineHeight: '2.5rem',
+      paddingBottom: '1rem'
     },
     h5:{
-      fontSize: 20,
+      fontSize: '1.4rem',
       fontWeight: 500,
-      lineHeight: 2
+      lineHeight: '2rem'
     },
     h6:{
-      fontSize: 18,
+      fontSize: '1rem',
       fontWeight: 400,
-      lineHeight: 4
+      lineHeight: '1.5rem'
     }
   }
 });
