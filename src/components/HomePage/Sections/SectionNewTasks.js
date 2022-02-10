@@ -10,10 +10,9 @@ const SectionNewTasks = () => {
         <Box id={"section-new-tasks"}
             height = {"100%"}
             alignItems={"center"}
-            margin={"3rem 3rem 0 3rem"}
         >
             <Typography variant="h1">Zobacz jakiej pomocy potrzebują inni</Typography>
-            <TasksList startSlice={0} endSlice={6}/>
+            <TasksList startSlice={0} endSlice={8}/>
             <Box align={"center"}>
                 <Routes>
                     <Route path="/TasksPage"/>

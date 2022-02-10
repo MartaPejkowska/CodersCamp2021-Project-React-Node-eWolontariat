@@ -7,11 +7,11 @@ import CustomAvatar from '../../theme/CustomAvatar';
 import { ListItemButton } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material';
 import { makeStyles} from '@mui/styles';
-import { useNavigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import CustomTypography from '../../theme/CustomTypography';
 import setCategoryIcon from '../../theme/setCategoryIcon';
 import { selectAllVolunteers } from '../../store/volunteerSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -63,6 +63,7 @@ const Search = styled('div')(({ theme }) => ({
     const [value, setValue] = useState('');
     const [filteredResults, setFilteredResults] = useState();
     const [displaySearchIcon, setdisplaySearchIcon] = useState(true);
+    let navigate = useNavigate()
       
       function  findMatches(wordToMatch) {
         return( list.volunteers?.filter((volunteer)=>{
@@ -112,7 +113,16 @@ const Search = styled('div')(({ theme }) => ({
               const regex = new RegExp(value,'gi'); 
               return (
                     <Box key={`item-${id}`} style={{ border: "1px #eee solid"}} >
-                      <ListItemButton key={`listitembutton-${id}`}  display={"flex"} style={{width: "100%"}} disableGutters>
+                      <ListItemButton 
+                        key={`listitembutton-${id}`}  
+                        display={"flex"} 
+                        style={{width: "100%"}} 
+                        disableGutters
+                        onClick={(e)=>{
+                            e.preventDefault();
+                            navigate(`/VolunteerPage/${el.id}/${el.nick}`);
+                        }}
+                        >
                           <CustomAvatar 
                             variant={"avatarBackground"} 
                             src={require(`../../assets/img/volunteers/${el.image}.jpg`)}
