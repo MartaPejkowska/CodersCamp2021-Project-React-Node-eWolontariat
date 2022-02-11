@@ -34,7 +34,6 @@ const TasksPage = () => {
         <TasksList startSlice={0} endSlice={8}/>
         )
     }
-
     return(
         <Box  id={"page-all-tasks"}
               height = {"100%"}
