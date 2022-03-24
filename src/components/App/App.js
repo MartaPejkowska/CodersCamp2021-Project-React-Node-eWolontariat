@@ -18,6 +18,8 @@ import { createBrowserHistory } from "history";
 import CategoryPage from "../TasksPage/CategoryPage.js";
 import Dialog from '../common/Dialog/Dialog';
 import OrganizationsPage from '../OrganizationsPage/OrganizationsPage.js';
+import { ToastContainer } from 'react-toastify';
+
 export function App() {
 
     return (
@@ -27,6 +29,7 @@ export function App() {
                     <Box sx={{ flexGrow: 1 }}> 
                         <AppHeader/>
                         <Box padding={"0 2"} flex={1} overflow={"auto"}>
+                        <ToastContainer autoClose={2000} />
                             <Routes history={createBrowserHistory}>
                                 <Route exact path="/*" element={<HomePage/>} />
                                 <Route path="/OrganizationForm/*" element={<OrganizationForm/>} />
@@ -38,7 +41,7 @@ export function App() {
                                 <Route path="/CategoryPage/:category" element={<CategoryPage/>} />
                                 <Route path="/UserProfile" element={<UserProfile/>} />
                                 <Route path="/VolunteerForm" element={<VolunteerForm/>} />
-                                <Route path="/VolunteerPage/:volunteerId/:volunteerNick" element={<VolunteerPage/>} />
+                                <Route path="/VolunteerPage/:volunteerId" element={<VolunteerPage/>} />
                                 <Route path="/VolunteersPage" element={<VolunteersPage/>} />
                                 <Route path="*" element={<Navigate to="/"/>}/>
                             </Routes>

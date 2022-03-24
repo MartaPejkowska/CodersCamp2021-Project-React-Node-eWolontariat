@@ -1,8 +1,10 @@
-import { TextField, Button, Typography, Link } from '@material-ui/core';
+import { TextField, Button, Typography, Link, styled } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { useState } from 'react';
 import { openDialog, FormType } from '../../store/dialogSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchLoginData, login,  selectResponseStatus } from 'store/systemSlice';
+
 
 const useStyles = makeStyles({
   field: {
@@ -15,37 +17,70 @@ const useStyles = makeStyles({
   },
 });
 
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-input:autofill': {
+      boxShadow: 'none',
+      textFillColor: '#e9626a',
+  }
+}));
+
 export const LoginDialog = () => {
   const dispatch = useDispatch();
   const classes = useStyles();
-  const [login, setLogin] = useState('');
-  const [haslo, setDetails] = useState('');
+  const responseStatus = useSelector(selectResponseStatus);
+  const [data, setData] = useState({
+    login: "",
+    password: ""
+  });
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setData({
+      ...data,
+      [e.target.name.trim()]: value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(fetchLoginData(data));   
+  };
+
+  if(responseStatus === 'succeeded log in (:') {
+    dispatch(login({ user: data.login }));
+    dispatch(openDialog({ formType: FormType.zalogowany}));
+  }  
 
   return (
-    <>
-      <TextField
+    <form onSubmit={handleSubmit}>
+      <StyledTextField 
         className={classes.field}
-        id="outlined-basic"
+        type="text"
+        name="login"
         label="Login"
         variant="outlined"
         required
         fullWidth
-        error={login ? false : true}
-        onChange={(e) => setLogin(e.target.value.trim())}
+        error={data.login ? false : true}
+        value={data.login}
+        onChange={handleChange}
+        helperText="Co najmniej 4 znaki, jedna wielka litera i jedna cyfra."
       />
 
-      <TextField
+      <StyledTextField 
         className={classes.field}
-        id="outlined-basic"
+        type="password"
+        name="password"
         label="Hasło"
         variant="outlined"
         required
         fullWidth
-        error={haslo ? false : true}
-        onChange={(e) => setDetails(e.target.value.trim())}
+        error={data.password ? false : true}
+        onChange={handleChange}
+        helperText="Co najmniej 8 znaków, jedna wielka litera i jedna cyfra."
       />
 
-      <Button className={classes.field} type="submit" color="primary" variant="contained" fullWidth>
+      <Button type="submit" className={classes.field} color="primary" variant="contained" fullWidth>
         Zaloguj się
       </Button>
 
@@ -55,10 +90,10 @@ export const LoginDialog = () => {
           variant="body1"
           onClick={() => dispatch(openDialog({ formType: FormType.rejestracja }))}
         >
-          Nie masz jeszcze konta? Zarejestruj się!
+          <Typography variant="caption" style={{color:"black"}}>Nie masz jeszcze konta? Zarejestruj się!</Typography>
         </Link>
       </Typography>
-    </>
+    </form>
   );
 };
 

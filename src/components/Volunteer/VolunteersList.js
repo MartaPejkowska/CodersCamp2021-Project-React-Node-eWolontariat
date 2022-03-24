@@ -2,7 +2,7 @@ import { Box, CircularProgress, Typography, Divider } from "@material-ui/core";
 import { useEffect, useState  } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { sortVolunteers,  selectAllVolunteers  } from "../../store/volunteerSlice";
-import { fetchVolunteers } from "../../store/fetchVolunteers";
+import { fetchVolunteers } from "../../store/volunteerSlice";
 import CustomButton from "../../theme/CustomButton";
 import getVolunteersCards from "./getVolunteersCards";
 import setVolunteersRatingButtons from "../VolunteersPage/setVolunteersRatingButtons";
@@ -62,7 +62,7 @@ const VolunteersList = ({startSlice,endSlice}) => {
                     >
                     Wszystkie</CustomButton>
 
-                {thePopularCategoriesButtons.map((category,id)=>(
+                {thePopularCategoriesButtons?.map((category,id)=>(
                     
                     <CustomButton 
                         key={`item-${id}`} 

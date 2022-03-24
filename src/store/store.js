@@ -1,24 +1,29 @@
-import { configureStore, getDefaultMiddleware} from "@reduxjs/toolkit";
-import taskReducer from "./taskSlice"
-import volunteerReducer from "./volunteerSlice";
-import dialogReducer from "../components/common/Dialog/store/dialogSlice";
-import systemReducer from './systemSlice';
-import organizationReducer from './organizationSlice'
-//import { composeWithDevTools } from "@reduxjs/toolkit/dist/devtoolsExtension";
-
-//const composedEnhancer = composeWithDevTools(applyMiddleware(thunkMiddleware));
+import { configureStore } from "@reduxjs/toolkit";
+import taskReducer from "store/taskSlice";
+import tasksListReducer from "store/tasksListSlice";
+import volunteerReducer from "store/volunteerSlice";
+import dialogReducer from "components/common/Dialog/store/dialogSlice";
+import systemReducer from 'store/systemSlice';
+import pictureReducer from 'store/pictureSlice'
+import organizationReducer from 'store/organizationSlice';
+import searchReducer from 'store/searchSlice';
+import categoriesReducer from 'store/categorySlice'
+import { rtkQueryErrorLogger } from 'store/ErrorCatchingMiddleware';
 
 export const store = configureStore({
-    middleware: getDefaultMiddleware({
-        serializableCheck: false
-      }),
     reducer:{
         volunteers: volunteerReducer,
         dialog: dialogReducer,
         system: systemReducer,
         task: taskReducer,
+        tasksList: tasksListReducer,
         organization: organizationReducer,
+        picture: pictureReducer,
+        searchedData: searchReducer,
+        categories: categoriesReducer
     },
-    //composedEnhancer
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: false
+      }).concat([rtkQueryErrorLogger])
 });
 

@@ -1,12 +1,14 @@
 import { AppBar, Box, Button, Toolbar } from "@material-ui/core";
-import LogoPomocny from "../../assets/img/logo-pomocny.svg";
-import LogoSignet from "../../assets/img/hand-peace-solid.svg";
+import LogoPomocny from "assets/img/logo-pomocny.svg";
+import LogoSignet from "assets/img/hand-peace-solid.svg";
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from "react-redux";
-import { openDialog, FormType } from '../common/Dialog/store/dialogSlice';
-import PersistentDrawerRight from "../Drawer/Drawer";
+import { useDispatch, useSelector } from "react-redux";
+import { openDialog, FormType } from 'components/common/Dialog/store/dialogSlice';
+import PersistentDrawerRight from "components/Drawer/Drawer";
 import { styled } from '@mui/material/styles';
 import { useMediaQuery } from "@mui/material";
+import { selectIsLoggedIn } from "store/systemSlice";
+import ResponsiveMenu from "components/Drawer/ResponsiveMenu";
 
 const LogoBox = styled(Box)(({ theme }) => ({
     height: "46px",
@@ -27,12 +29,13 @@ const AppHeader = () => {
     let navigate = useNavigate();
     let dispatch = useDispatch();
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+    const loggedIn = useSelector(selectIsLoggedIn);
+
+    let elementForNotLoggedIn;
     let buttons;
 
-
     function getLogo() {
-        
-        const logo = <LogoBox className="logo" component="img" alt="Logo pomocny.pl" type="button" 
+        const logo = <LogoBox className="logo" component="img" alt="Logo pomocny.pl" type="button"
                         src={ 
                             matches ?  LogoPomocny :  LogoSignet
                         }                     
@@ -44,11 +47,37 @@ const AppHeader = () => {
         return logo;
      };
 
-     function setAppBar() {
+     function getAuthButton() {
+        matches ? (
+        elementForNotLoggedIn = (
+           (
+                <>
+                <Button 
+                    variant="text" 
+                    size={'medium'}
+                    type="button"
+                    onClick={() => dispatch(openDialog({ formType: FormType.loginDialog }))} 
+                >
+                    Zaloguj się
+                </Button>
+                <Button 
+                        variant="text" 
+                        size={'medium'}
+                        onClick={() => dispatch(openDialog({ formType: FormType.rejestracja }))}
+                >
+                        Zarejestruj się
+                </Button>
+            </>
+            )
+        )) : elementForNotLoggedIn =  <ResponsiveMenu/>;
 
+        return elementForNotLoggedIn;
+     }
+
+     function setAppBar(marginT) {
               matches ? (
                 buttons = <><Button 
-                            style={{height: '2.5rem', marginTop:'1rem'}}
+                            style={{height: '2.5rem', marginTop: marginT}}
                             variant="contained" 
                             color='primary' 
                             size={'medium'} 
@@ -59,21 +88,6 @@ const AppHeader = () => {
                             }}
                         >
                             Stwórz zadanie
-                        </Button>
-                        <Button 
-                            variant="text" 
-                            size={'medium'}
-                            type="button"
-                            onClick={() => dispatch(openDialog({ formType: FormType.loginDialog }))} 
-                        >
-                            Zaloguj się
-                        </Button>
-                        <Button 
-                            variant="text" 
-                            size={'medium'}
-                            onClick={() => dispatch(openDialog({ formType: FormType.rejestracja }))}
-                        >
-                            Zarejestruj się
                         </Button>
                         </>
 
@@ -87,12 +101,15 @@ const AppHeader = () => {
             <Toolbar >
                     {getLogo()}
                     <Box display={"flex"} justifyContent={"flex-end"} flexGrow={"1"} gridColumnGap={"1.4rem"}>
-                        {setAppBar()}
-                        <PersistentDrawerRight />
-                    </Box>              
+                        {loggedIn && setAppBar("1rem")}
+                        {!loggedIn && getAuthButton()}
+                        {loggedIn && <PersistentDrawerRight />}
+                    </Box>            
             </Toolbar>
         </StyledAppBar>
     </header>
 )}
 
 export default AppHeader;
+
+

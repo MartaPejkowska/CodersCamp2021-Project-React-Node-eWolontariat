@@ -1,86 +1,135 @@
-import { TextField, Button } from '@material-ui/core';
+import { TextField, Button, styled } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { openDialog, FormType } from '../../store/dialogSlice';
+import { fetchRegistrationData, selectResponseStatus } from 'store/systemSlice';
 
 const useStyles = makeStyles({
   field: {
     marginTop: 15,
     marginBottom: 20,
-  },
+  }
 });
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-input:autofill': {
+      boxShadow: 'none',
+      textFillColor: '#e9626a',
+  }
+}));
 
 export const RejestracjaEmail = () => {
   const dispatch = useDispatch();
+  const responseStatus = useSelector(selectResponseStatus);
 
   const classes = useStyles();
+  const [data, setData] = useState({
+    firstName: "",
+    lastName: "",
+    login: "",
+    email: "",
+    password: ""
+  });
 
-  const [imie, setImie] = useState('');
-  const [nazwisko, setNazwisko] = useState('');
-  const [email, setEmail] = useState('');
-  const [haslo, setHaslo] = useState('');
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setData({
+      ...data,
+      [e.target.name.trim()]: value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(fetchRegistrationData(data));
+  };
+
+  if(responseStatus === 'succeeded register (:') {
+    dispatch(openDialog({ formType: FormType.zalozonyProfil }));
+  };
 
   return (
-    <>
-      <TextField
+    <form onSubmit={handleSubmit}>
+      <StyledTextField 
         className={classes.field}
-        id="outlined-basic"
+        type="text"
+        name="firstName"
         label="Imię"
         variant="outlined"
         required
         fullWidth
-        error={imie ? imie.trim().length < 3 : true}
-        onChange={(e) => setImie(e.target.value.trim())}
+        error={data.firstName ? data.firstName.trim().length < 3 : true}
+        value={data.firstName}
+        onChange={handleChange}
+        helperText="Co najmniej 3 litery,w tym jedna wielka."
       />
 
-      <TextField
+      <StyledTextField 
         className={classes.field}
-        id="outlined-basic"
+        type="text"
+        name="lastName"
         label="Nazwisko"
         variant="outlined"
         required
         fullWidth
-        error={nazwisko ? false : true}
-        onChange={(e) => setNazwisko(e.target.value.trim())}
+        error={data.lastName ? false : true}
+        value={data.lastName}
+        onChange={handleChange}
+        helperText="Co najmniej 3 litery,w tym jedna wielka."
       />
 
-      <TextField
+      <StyledTextField 
         className={classes.field}
-        id="outlined-basic"
+        type="text"
+        name="login"
+        label="Login"
+        variant="outlined"
+        required
+        fullWidth
+        error={data.login ? false : true}
+        value={data.login}
+        onChange={handleChange}
+        helperText="Co najmniej 4 znaki, jedna wielka litera i jedna cyfra."
+      />
+
+      <StyledTextField 
+        className={classes.field}
+        type="email"
+        name="email"
         label="Email"
         variant="outlined"
         required
         fullWidth
-        error={email ? false : true}
-        onChange={(e) => setEmail(e.target.value.trim())}
+        error={data.email ? false : true}
+        value={data.email}
+        onChange={handleChange}
       />
 
-      <TextField
+      <StyledTextField 
         className={classes.field}
-        id="outlined-basic"
+        type="password"
+        name="password"
         label="Hasło"
         variant="outlined"
         required
         fullWidth
-        error={haslo ? haslo.trim().length < 5 : true}
-        onChange={(e) => setHaslo(e.target.value.trim())}
+        error={data.password? data.password.trim().length < 5 : true}
+        value={data.password}
+        onChange={handleChange}
+        helperText="Co najmniej 8 znaków, jedna wielka litera i jedna cyfra."
       />
 
       <Button
+        type="submit"
         className={classes.field}
-        onClick={() => {
-          if (Boolean(imie) && Boolean(nazwisko) && Boolean(email) && Boolean(haslo)) {
-            dispatch(openDialog({ formType: FormType.zalozonyProfil }));
-          }
-        }}
         color={'primary'}
         variant="contained"
         fullWidth
       >
         Zarejestruj się
       </Button>
-    </>
+      </form>
   );
 };
 

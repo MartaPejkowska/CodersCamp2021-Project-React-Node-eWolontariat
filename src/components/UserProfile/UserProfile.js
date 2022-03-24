@@ -1,23 +1,32 @@
 import { Button, Typography, Container, Box, Avatar } from '@material-ui/core'
 import { useNavigate } from 'react-router';
-import CustomButton from '../../theme/CustomButton';
-import { selectAllVolunteers, selectVolunteerId } from '../../store/volunteerSlice';
+import CustomButton from 'theme/CustomButton';
 import { useSelector } from "react-redux";
 import { ListItemButton } from '@mui/material';
-import CustomTypography from '../../theme/CustomTypography';
+import CustomTypography from 'theme/CustomTypography';
+import { useEffect, useState } from 'react';
+import UserClient from 'services/client/UserClient';
+import { selectLoggedInUser } from 'store/systemSlice';
 
 const UserProfile = () => { 
   let navigate = useNavigate();
-  const volunteersList = useSelector(selectAllVolunteers).volunteers;
-  const volunteer = selectVolunteerId(volunteersList, 3);
- 
+  const [user, setUser] = useState([]);
+  const userLogin = useSelector(selectLoggedInUser);
+  let avatar;
+
+  useEffect(() => {
+    UserClient.getLoggedInUser(userLogin).then((response) => {
+        setUser(response.data);
+    });
+  }, [userLogin]);
+
     return (
 
       <Container style={{display: 'flex',justifyContent: 'center',paddingTop: '4rem',width: '100%'}}>
         <Box style={{width: '20%',margin: '0',padding: '0',}}>
             <Avatar
-                    src={require(`../../assets/img/volunteers/${volunteer.image}.jpg`)}
-                    alt={`${volunteer.name}`}
+                    src={avatar}
+                    alt={`${user.firstName}`}
                     style = {{borderRadius:"50%", width:"200px", height: "200px", marginBottom: "2rem"}}
                     />
           <Button variant="outlined" disabled style={{marginLeft:'1.6rem'}}>Edytuj zdjęcie</Button>
@@ -25,7 +34,7 @@ const UserProfile = () => {
         <Box style={{ width: '70%'}}>
           <Box style={{  display: 'flex', borderBottom: '1px solid #AFAFAF', marginBottom: '2rem'}} >
               <Box style={{  display: 'flex', justifyContent: "flex-start"}}>
-                  <Typography gutterBottom variant="h1" style={{margin: "0 2rem 0 0"}}>{volunteer.name} {volunteer.surname}</Typography>
+                  <Typography gutterBottom variant="h1" style={{margin: "0 2rem 0 0"}}>{user.firstName} {user.lastName}</Typography>
               </Box>
               <Box style={{  display: 'flex', justifyContent: "flex-end", gap: "3rem"}}>
                   <CustomButton 
@@ -46,10 +55,10 @@ const UserProfile = () => {
           <Box style={{borderBottom: '1px solid #AFAFAF', marginBottom: '2rem'}}>
             <CustomTypography variantcolor={"typographycolor"} variant='h2' style={{margin: "2rem 0"}} color="tertiary">Uczestniczyłeś w tych akcjach:</CustomTypography>
             <Typography variant='h3' style={{color: '#868686'}}>
-              {volunteer.actions?.map((act,id)=>(
+              {user.events?.map((event,id)=>(
                 <ListItemButton key={`action-${id}`} style={{border: "1px #eee solid", textTransform: "capitalize", width: "80%"}}
                 >  
-                    {act}</ListItemButton>
+                    {event}</ListItemButton>
 
               ))}
                 

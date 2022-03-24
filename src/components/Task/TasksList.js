@@ -1,62 +1,47 @@
-import { Box, CircularProgress, Typography, Divider, MenuItem } from "@material-ui/core";
+import { Box, Typography, Divider, MenuItem } from "@material-ui/core";
 import { useEffect, useState  } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { sortTasks,  selectAllTasks } from "../../store/taskSlice";
-import CustomButton from "../../theme/CustomButton";
-import { fetchTasks } from "../../store/fetchTasks";
-import getTasksCards from "./getTasksCards";
-import SearchInputTasks from "../TasksPage/SearchInputTasks";
-import setTasksRatingButtons from "../TasksPage/setTasksRatingButtons";
+import { selectTasksList, selectTasksListStatus, selectTasksListError, filterTasksList  } from "store/tasksListSlice";
+import CustomButton from "theme/CustomButton";
+import { fetchTasks } from "store/tasksListSlice";
+import SearchInputTasks from "components/TasksPage/SearchInputTasks";
+import setTasksRatingButtons from "components/TasksPage/setTasksRatingButtons";
 import { FormControl, InputLabel, Select } from "@mui/material";
-import Categories from "../../assets/data/Categories";
+import Categories from "assets/data/Categories";
+import TaskCard from "components/TasksPage/TaskCard";
+
 
 const TasksList = ({startSlice,endSlice}) => {
   const dispatch = useDispatch();
-  const tasksList = useSelector(selectAllTasks);
-  const tasksStatus = useSelector(state => state.task.status);
-  const error = useSelector(state => state.task.error);
-  const [filteredTasks, setTasks] = useState([]);
-  const [isFilterTasks, setFilterTasks] = useState(false);
-  const [selectValue, setSelectValue] = useState('');
+  const tasksList = useSelector(selectTasksList);
+  const tasksListStatus = useSelector(selectTasksListStatus);
+  const error = useSelector(selectTasksListError);
 
-  let orderedTasks =[];
+  const [tasks, setTasks] = useState([]);
+  const [category, setCategory] = useState('');
+  const [selectValue, setSelectValue] = useState('');
+  let limit = 6;
+  
 
   useEffect(() => {
-    if (tasksStatus === 'idle') {
-      dispatch(fetchTasks())
-    }
-  }, [tasksStatus, dispatch]);
-
-  let content, searchInput;
-
-  if (tasksStatus === 'loading...') {
-       content = (
-        <Box style={{color: 'red'}} padding={2} align={"center"}>
-            <CircularProgress style={{margin: "2rem"}} align={"center"} color={"secondary"}/>
-        </Box>
-      );
-  } else if (tasksStatus === 'succeeded (:') {
-      orderedTasks = dispatch(sortTasks(tasksList.tasks)).payload;
-      searchInput = <SearchInputTasks/>;
-      
-  } else if (tasksStatus === 'failed :(') {
-       content = <Box style={{color: 'red'}} padding={2} align={"center"}>ERROR: {error}</Box>;
-  }  
-  
-  const getFilteredTextFromButton=(text)=> {
-    return (
-        tasksList.tasks?.filter(element => 
-              element.categories.includes(text))
-          )
+    const params = new URLSearchParams({
+      'category': category,
+      'limit': limit
+    });
+    if (tasksListStatus === 'idle') {
+      dispatch(fetchTasks(params));
     };
+    setTasks(tasksList)
+  }, [tasksList, tasksListStatus, dispatch, category]);
 
-  let thePopularCategoriesButtons = setTasksRatingButtons(orderedTasks).slice(0,4);
+  let content;
+  let thePopularCategoriesButtons = setTasksRatingButtons(tasksList).slice(0,4);
 
     return (
 
       <Box>
         <Box display={"flex"} justifyContent={"center"} style={{margin: "4rem 0 1rem"}}>
-              {searchInput}
+          <SearchInputTasks/>
         </Box>
         <Typography variant="subtitle2" align={"center"} style={{marginTop: "1rem"}}>Najpopularniejsze kategorie:</Typography>
         <Box id="filtering-buttons" display={"flex"} justifyContent={'center'}  gridColumnGap={"2rem"} padding={"0 0 2rem 0"} margin={"1rem"} alignItems={"center"} flexWrap={"wrap"}>
@@ -65,8 +50,9 @@ const TasksList = ({startSlice,endSlice}) => {
                         style={{marginTop: "1rem"}}
                         color={"primary"}  
                         onClick={()=>{
-                          setFilterTasks(false);
-                          setSelectValue("");
+                            setCategory('');
+                            setSelectValue("");
+                            dispatch(filterTasksList());
                         }}        
                     >
                     Wszystkie</CustomButton>
@@ -79,14 +65,13 @@ const TasksList = ({startSlice,endSlice}) => {
                         color={category.buttonColor}
                         startIcon={category.icon}
                         onClick={()=>{
-                            setTasks(getFilteredTextFromButton(category.value));
-                            setFilterTasks(true);
+                            dispatch(filterTasksList());
+                            setCategory(category.value);
                             setSelectValue(category.value);
-                        }}                           
+                          }}                       
                     >
                         <Divider orientation="vertical" flexItem style={{backgroundColor: "#eee", marginRight:"10px"}} /> {category.value}
                     </CustomButton>
-                    
                 ))}
             </Box>
             <Box display={"flex"} justifyContent={"space-evenly"} alignItems={"center"} flexWrap={"wrap"}>
@@ -96,9 +81,9 @@ const TasksList = ({startSlice,endSlice}) => {
                 <Select
                   value = {selectValue}
                   onChange={(e)=> {
+                    dispatch(filterTasksList());
                     setSelectValue(e.target.value);
-                    setTasks(getFilteredTextFromButton(e.target.value));
-                    setFilterTasks(true);
+                    setCategory(e.target.value);
                   }}
                 label="Wybierz kategorię"
                 style={{width: "260px", fontSize: "1rem" }}
@@ -119,10 +104,14 @@ const TasksList = ({startSlice,endSlice}) => {
             </Box>
               {content}
               <Box display={'flex'} flexDirection={"row"} flexWrap={"wrap"} padding={'0 2rem 4rem 2rem'} justifyContent={'center'}>
-                  {getTasksCards(isFilterTasks, orderedTasks, selectValue, filteredTasks, startSlice, endSlice)}
+                {tasks?.slice(startSlice,endSlice).map((task,id) =>{
+                  return <TaskCard key={`item-${task._id}`} task={task} id={task._id}/>
+                })}
               </Box>
          </Box>
     )
 }
 
 export default TasksList;
+
+
